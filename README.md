@@ -4,152 +4,6 @@ Pour réussir ce challenge, nous vous laissons le choix de développer soit une 
 
 Le rendu se fera via [ce formulaire Google Forms](https://goo.gl/nwZUVk) dans lequel nous vous demandons notamment l'URL de votre application, ainsi que celui de votre repository GitHub (contenant votre code ainsi qu'un fichier README.md qui explique succinctement comment démarrer et tester votre application).
 
-## Option 1 : Movies Explorer (frontend)
-
-**Prélude**
-
-_Même si Benoît aime énormément écrire des tests en JavaScript, c'est aussi et avant tout un grand cinéphile ! Lorsqu'il rentre chez lui le soir après une dure journée de labeur, il se délecte d'un moment privilégié devant un film méticuleusement sélectionné au préalable. Chaque jour est une nouvelle chance d'explorer de nouveaux horizons cinématographiques et de se retrouver projeté dans des mondes inouïs tantôt féériques, tantôt dystopiques, tantôt romantiques. Malheureusement, notre héros met parfois beaucoup de temps pour sélectionner **le** film à visionner, car cela n'est pas chose aisée ! Pouvez-vous l'aider en développant une petite application frontend d'assistance ?_
-
-**Introduction**
-
-Si vous optez pour cette option vous allez devoir développer une application web de suggestion de films. Dans un premier temps, l’utilisateur verra afficher une liste de films, puis devra sélectionner dans cette liste les films qu’il a déjà visionnés et appréciés. Après avoir fait son choix, l’application lui proposera une liste de suggestions de films prochainement projetés en salle, basée sur ses préférences.
-
-**Consigne**
-
-- Mettre en place un environnement de développement frontend basé sur un framework de votre choix (React, Vue.js, Angular, ou autre).
-
-- Utiliser l’API publique de [TMDb](https://developers.themoviedb.org/3/getting-started/introduction) afin de récupérer les données des films. Pour éviter de vous faire perdre du temps précieux, vous utiliserez l'API key que nous vous fournissons et suivrez les instructions dans les sections qui suivent concernant l'utilisation de l'API.
-
-  Comme vous serez plusieurs à tester l'API simultanément, il sera nécessaire de contourner la limitation liées au nombre de requêtes par adresse IP. Une solution est par exemple d'utiliser le proxy [dev-proxy-server](https://github.com/paulnta/dev-proxy-server).
-
-- Vous mettrez l'accent sur la partie fonctionnelle plutôt que sur le design ou l'expérience utilisateur. Notez que l'application doit tout de même être un minimum utilisable et intuitive.
-
-- Implémenter les fonctionnalités demandées dans les étapes qui suivent.
-- Déployer votre application en ligne. Ne perdez pas trop de temps sur ce point, et mettez une priorité plus élevée sur les autres étapes si besoin.
-
-
-
-
-### 1. Films populaires (3pt)
-
-Dans cette première étape, nous demandons d'afficher une liste de films. Pour cela, vous devez écrire un script qui récupère les données de l’endpoint suivant :
-
-```
-https://api.themoviedb.org/3/movie/popular?page=1&api_key=<YOUR_API_KEY>
-```
-
-Cette requête retourne la première page de résultats (à savoir, les 20 films les plus populaires). Voici un exemple de réponse :
-
-```js
-{
-  "page": 1,
-  "total_results": 19854,
-  "total_pages": 993,
-  "results": [
-    {
-      "vote_count": 2070,
-      "id": 297802,
-      "video": false,
-      "vote_average": 6.9,
-      "title": "Aquaman",
-      "popularity": 499.057,
-      "poster_path": "/5Kg76ldv7VxeX9YlcQXiowHgdX6.jpg",
-      "original_language": "en",
-      "original_title": "Aquaman",
-      "genre_ids": [28, 14, 878, 12],
-      "backdrop_path": "/5A2bMlLfJrAfX9bqAibOL2gCruF.jpg",
-      "adult": false,
-      "overview": "Arthur Curry learns that...",
-      "release_date": "2018-12-07"
-    }
-    // ...
-  ]
-}
-```
-
-Si vous souhaitez Apollo GraphQL, il existe une version GraphQL de l'API ici : https://graphql-tmdb.herokuapp.com/.
-
-Dans ce cas, vous devez mettre votre api key dans le header `Authorization` de vos requêtes, comme dans l'exemple qui suit :
-```js
-const httpLink = createHttpLink({
-  uri: 'https://graphql-tmdb.herokuapp.com/graphql',
-  headers: {
-    authorization: `<YOUR_API_KEY>`,
-  }
-})
-```
-
-**Répartion des points:**
-
-- (1pt) – vous récupérez au minimum 20 films.
-
-- (2pt) – vous affichez la liste des films avec leur image de couverture.
-
-- *(BONUS 0.5pt) – vous affichez plus de détails par films (titre, date de sortie, genres). La liste de tous les genres officiels est disponible à l'endpoint suivant:*
-
-  ```
-  http://api.themoviedb.org/3/genre/movie/list?api_key=<YOUR_API_KEY>
-  ```
-
-
-### 2. Films prochainement à l'affiche (2pt)
-
-Vous allez devoir ici créer une deuxième vue affichant la liste des films prochainement en salles. Il doit être possible de naviguer entre les deux vues. Ces informations sont accesibles via l'endpoint suivant:
-
-```
-https://api.themoviedb.org/3/movie/upcoming?page=1?api_key=<YOUR_API_KEY>
-```
-
-La réponse à cette requête est similaire à celle de l'endpoint `/movie/popular`.
-
-
-
-**Répartion des points:**
-
-- (1pt) – vous affichez la liste des films prochainement projetés en salle avec leurs pochettes. Nous pour cette vue, nous vous demandons de récupérer au moins 100 films.
-- (1pt) – il est possible de naviguer d’une vue à l’autre en cliquant sur un bouton (donc vue analyse <=> vue prochainement en salle). Il n’est pas nécessaire de mettre en place un *router* pour ce faire.
-- *(BONUS 0.5pt) – vous récupérez exactement toutes les pages de résultats de manière dynamique.*
-
-### 3. Sélection de films (2pt)
-
-Le but de cette étape est de permettre à l'utilisateur de sélectionner/déselectionner des films. **Vous ajouterez cette fonctionnalité uniquement dans la vue "films populaires"** de l'étape 1.
-
-**Répartion des points:**
-
-- (1pt) – il est possible de cliquer sur un film pour le sélectionner/désélectionner. Vous maintenez une liste de films sélectionnés. Nous ne vous demandons pas de persister ces informations dans une quelconque base de donnée. Par exemple, si vous utilisez React, maintenir cette liste dans le `state` d’un composant est suffisant.
-- (1pt) – l’interface indique l'état du film (sélectionné/désélectionné). Vous pouvez par exemple rajouter une bordure autour de la pochette de la manière la plus simple possible.
-
-### 4. Recommandations (1pt)
-
-Ici **vous devez utiliser la vue "films prochainement à l'affiche"** de l'étape 2 pour proposer des recommandations basées sur les préférences de l'utilisateur.
-Fondamentalement, vous devez affiner les résultats reçus à l'endpoint `/movie/upcoming` dans la deuxième étape en gardant uniquement ceux qui correspondent à certains critères définis. Le choix et la définition de ces critères de filtre vous incombe, mais doit être réalisée selon la liste des films sélectionnés par l'utilisateur.
-
-Répartion des points:
-
-- (0.5pt) – vous avez appliqué un filtre sur les films prochainement à l'affiche afin d’en faire des suggestions.
-- (0.5pt) – le filtre appliqué est basé sur une ou plusieurs propriétés des films sélectionnés par l’utilisateur.
-- *(BONUS 0.5pt): les recommandations sont ordonnées selon leur pertinence.*
-
-### 5. BONUS - Sécurisation de l'application avec un formulaire de login (1pt)
-Dans cette étape **facultative**, vous pouvez développer une page de login afin de sécuriser votre application.
-
-### 6. Qualité du code (1.25pt)
-
-Les points de cette étape sont répartis de la manière suivante :
-
-- (0.25pt) – la structure des fichiers est cohérente.
-- (0.25pt) – tout code non utilisé est supprimé y compris les logs de debug dans la console.
-- (0.25pt) – votre code est suffisament documenté lorsque cela est nécessaire.
-- (0.25pt) – vous utilisez un linter.
-- (0.25pt) – les variables d’environnement sont utilisées lorsque cela est nécessaire.
-- *(BONUS 0.5pt) – les fonctions complexes sont également testées avec Mocha et Chai ou autres. Par exemple vous pouvez créer un test qui valide que la logique utilisée pour créer/trier les recommandations fonctionne correctement.*
-
-### 7. Déploiement (1pt)
-
-Finalement, vous devez déployer votre application statique sur la plateforme de votre choix. Pour gagner du temps, considérez l’utilisation de l’outil <https://zeit.co/now>.
-
-
-
 ## Option 2 : Movie Time (backend)
 
 **Prélude**
@@ -211,7 +65,10 @@ Afin de pouvoir exécuter la commande `mongoimport` vous devez au préalable :
 mongoimport --host myAtlasRS/atlas-host1:27017,atlas-host2:27017,atlas-host3:27017 --ssl --username myAtlasUsername --password myAtlasPassword --authenticationDatabase admin --db movie-time --collection movies --jsonArray --file data/movies.json
 ```
 
-
+mLab : 
+```bash
+mongoimport -h ds019498.mlab.com:19498 -d movie-time -c movies -u tweb -p Hello-World1 --drop --file data/movies.json --jsonArray
+```
 
 **Vérification**
 
@@ -222,7 +79,8 @@ Si l’opération s’est bien déroulée, le message `imported 10000 documents`
 **Répartion des points:**
 
 - (1pt) – Les films ont étés importés dans un MongoDB local ou distant. Ajoutez un screenshot du résultat de l'opération dans votre README.md.
-
+![terminal](./sample/1.png)
+![mlab](./sample/1_1.png)
 
 ### 2. Liste des films (3pt)
 
